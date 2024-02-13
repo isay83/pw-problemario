@@ -16,7 +16,7 @@ function validate_address(){
     // split email address
     $parts = explode('@', $address, 2);
 
-    // verificar si se dividió correctamente
+    // verify parts
     if (count($parts) < 2) {
         echo "USUARIO INCORRECTO\n";
         return;
