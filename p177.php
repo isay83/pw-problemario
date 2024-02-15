@@ -1,6 +1,11 @@
 <?php
 // Jonathan Isay Bernal Arriaga
 // 2024 Ene-Jun
+/* 
+2
+conacad@tigger.itc.mx
+alumno@gmail.@com
+*/
 
 $cases = trim(fgets(STDIN));
 $iterate = 0;
