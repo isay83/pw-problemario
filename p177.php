@@ -33,7 +33,7 @@ function validate_address(){
     if (!validate_user($user)) {
         echo "USUARIO INCORRECTO\n";
     } elseif (!validate_domain($domain)) {
-        echo "DOMINO INCORRECTO\n";
+        echo "DOMINIO INCORRECTO\n";
     } else {
         echo $domain."\n";
     }
