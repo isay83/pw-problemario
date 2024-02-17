@@ -11,15 +11,27 @@ $dataBase = trim(fgets(STDIN)); // database name (p341)
 $connection = mysqli_connect($server, $user, $pass, $dataBase);
 
 if ($connection) {
-
-  echo getMaxBetDate($conn) . PHP_EOL;
+  // 1
+  echo getMaxBetDate($connection) . PHP_EOL;
+  // 2
+  echo getMaxLoser($connection) . PHP_EOL;
+  // 3
+  echo getTopBet($connection) . PHP_EOL;
+  // 4
+  echo getCompanyProfit($connection) . PHP_EOL;
+  // 5
+  echo getWeekendBets($connection) . PHP_EOL;
+  // 6
+  printWrongBankAccounts($connection);
+  // 7
+  echo getTopDebtor($connection);
 
   // close connection
   mysqli_close($connection);
 }
 
-// 1. Día con mayor dinero apostado
-function getMaxBetDate($conn)
+// 1. highest betting day
+function getMaxBetDate($connection)
 {
   $sql = "SELECT DATE_FORMAT(Fecha, '%d/%b/%Y') AS Fecha, SUM(Apuesta) AS Total 
           FROM BD_Apuesta  
@@ -27,19 +39,15 @@ function getMaxBetDate($conn)
           ORDER BY Total DESC
           LIMIT 1";
 
-  $result = mysqli_query($conn, $sql);
+  $result = mysqli_query($connection, $sql);
   $row = mysqli_fetch_assoc($result);
 
-  return $row['Fecha'] . " $" . $row['Total'];
+  return $row['Fecha'] . " $" . formatMoney($row['Total']);
 }
-
-
-
-
-// 2. Usuario con mayor pérdida neta 
-function getMaxLoser($conn)
+// 2. user with the highest net loss 
+function getMaxLoser($connection)
 {
-  $sql = "SELECT Usuarios.Nombre, SUM(
+  $sql = "SELECT CONCAT(Usuarios.Nombre, ' ', Usuarios.Apellidos) AS Nombre, SUM(
                 CASE
                   WHEN BD_Apuesta.IdGanador = Usuarios.Usuario THEN 0.9*BD_Apuesta.Apuesta
                   ELSE -0.5*BD_Apuesta.Apuesta 
@@ -48,24 +56,18 @@ function getMaxLoser($conn)
           INNER JOIN Usuarios
             ON BD_Apuesta.Retador = Usuarios.Usuario
                OR BD_Apuesta.Invitado = Usuarios.Usuario
-          GROUP BY Usuarios.Nombre
+          GROUP BY Nombre
           ORDER BY Neto ASC
           LIMIT 1";
 
-  $result = mysqli_query($conn, $sql);
+  $result = mysqli_query($connection, $sql);
   $row = mysqli_fetch_assoc($result);
 
-  return $row['Nombre'] . " $" . $row['Neto'];
+  return $row['Nombre'] . " $" . formatMoney($row['Neto']);
 }
-
-echo getMaxLoser($conn) . PHP_EOL;
-
-
-// 3. Apuesta mayor, quienes y ganador
-function getTopBet($conn)
+// 3. major bet, who and winner
+function getTopBet($connection)
 {
-
-  // SQL query   
   $sql = "SELECT CONCAT(U1.Nombre, ' ', U1.Apellidos) AS Retador, 
                 CONCAT(U2.Nombre, ' ', U2.Apellidos) AS Invitado,
                 BD_Apuesta.Apuesta AS Monto,
@@ -80,48 +82,36 @@ function getTopBet($conn)
            ORDER BY BD_Apuesta.Apuesta DESC
            LIMIT 1";
 
-  $result = mysqli_query($conn, $sql);
+  $result = mysqli_query($connection, $sql);
   $row = mysqli_fetch_assoc($result);
 
   return $row['Retador'] . " vs " . $row['Invitado'] . " gano " . $row['Ganador'];
 }
-
-echo getTopBet($conn) . PHP_EOL;
-
-
-// 4. Ganancias de la empresa
-function getCompanyProfit($conn)
+// 4. earnings
+function getCompanyProfit($connection)
 {
   $sql = "SELECT SUM(BD_Apuesta.Apuesta) * 0.1 AS Ganancia
           FROM BD_Apuesta";
 
-  $result = mysqli_query($conn, $sql);
+  $result = mysqli_query($connection, $sql);
   $row = mysqli_fetch_assoc($result);
 
-  return "$" . $row['Ganancia'];
+  return "$" . formatMoney($row['Ganancia']);
 }
-
-echo getCompanyProfit($conn) . PHP_EOL;
-
-
-// 5. Dinero apostado fines de semana
-function getWeekendBets($conn)
+// 5. money wagered on weekends
+function getWeekendBets($connection)
 {
   $sql = "SELECT SUM(BD_Apuesta.Apuesta) AS Total
           FROM BD_Apuesta
           WHERE DAYOFWEEK(BD_Apuesta.Fecha) IN (1,7)";
 
-  $result = mysqli_query($conn, $sql);
+  $result = mysqli_query($connection, $sql);
   $row = mysqli_fetch_assoc($result);
 
-  return $row['Total'];
+  return "$" . formatMoney($row['Total']);
 }
-
-echo getWeekendBets($conn) . PHP_EOL;
-
-
-// 6. Cuentas bancarias con error
-function printWrongBankAccounts($conn)
+// 6. bank accounts with error
+function printWrongBankAccounts($connection)
 {
   $sql = "SELECT CB.Id AS IdRegistro, B.Banco, U.Nombre, 
                 CASE
@@ -135,33 +125,52 @@ function printWrongBankAccounts($conn)
               ON U.Usuario = CB.IdUser
            WHERE CHAR_LENGTH(CB.CLABE) NOT IN (18,16)";
 
-  $result = mysqli_query($conn, $sql);
+  $result = mysqli_query($connection, $sql);
+
+  $output = '';
 
   while ($row = mysqli_fetch_assoc($result)) {
-    echo $row['IdRegistro'] . " " . $row['Banco'] . " " . $row['Nombre'] . " " . $row['Longitud'] . PHP_EOL;
+
+    $output .= $row['IdRegistro'] . " " . $row['Banco'] . " " . $row['Nombre'] . " " . $row['Longitud'];
+
+    $output .= " : ";
+  }
+
+  $output = trim($output, " :");
+
+  echo $output;
+}
+// 7. user with the highest bank debta
+function getTopDebtor($connection)
+{
+
+  $sql = "SELECT CONCAT(U.Nombre, ' ', U.Apellidos) AS Nombre,  
+  GROUP_CONCAT(B.Banco SEPARATOR ' ') AS Bancos,
+  SUM(CASE WHEN CB.Saldo < 0 THEN CB.Saldo ELSE 0 END) AS DeudaTotal   
+FROM Cuentas_Bancarias CB
+JOIN Usuarios U ON CB.IdUser = U.Usuario
+JOIN Bancos B ON CB.IdBanco = B.Id
+GROUP BY Nombre
+ORDER BY DeudaTotal DESC
+LIMIT 1;";
+
+  $result = mysqli_query($connection, $sql);
+
+  $row = mysqli_fetch_assoc($result);
+
+  if ($row) {
+    return $row['Nombre'] . " " . $row['Bancos'] . " $" . formatMoney($row['DeudaTotal']);
+  } else {
+    return "";
   }
 }
 
-printWrongBankAccounts($conn);
-
-
-// 7. Usuario con mayor deuda bancaria
-function getTopDebtor($conn)
+function formatMoney($amount)
 {
-
-  $sql = "SELECT CONCAT(U.Nombre, ' ', U.Apellidos) AS Nombre,
-                 SUM(CASE WHEN CB.Saldo < 0 THEN CB.Saldo ELSE 0 END) AS Deuda
-          FROM Cuentas_Bancarias CB
-          INNER JOIN Usuarios U
-            ON CB.IdUser = U.Usuario
-          GROUP BY U.Nombre
-          ORDER BY Deuda ASC
-          LIMIT 1";
-
-  $result = mysqli_query($conn, $sql);
-  $row = mysqli_fetch_assoc($result);
-
-  return $row['Nombre'] . " $" . $row['Deuda'];
+  return number_format($amount, 2, '.', ',');
 }
 
-echo getTopDebtor($conn);
+?>
+```
+
+```php
