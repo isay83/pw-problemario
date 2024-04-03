@@ -65,7 +65,14 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
     $sql .= "INSERT INTO `$tableName` (";
 
     $fieldNames = array_column($fields, 'name');
-    $sql .= "`" . implode("`,`", $fieldNames) . "`";
+    //$sql .= "`" . implode("`,`", $fieldNames) . "`";
+    $sql .= "`" . implode("`,`", array_filter($fieldNames, function ($fieldName) use ($fields) {
+        $field = array_filter($fields, function ($field) use ($fieldName) {
+            return $field['name'] === $fieldName;
+        });
+        return isset($field[2]['extraData']);
+    })) . "`";
+    print_r($fieldNames);
     $sql .= ")\nVALUES\n";
 
     for ($i = 0; $i < $numRecords; $i++) {
@@ -76,7 +83,7 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
             $extraData = isset($field['extraData']) ? $field['extraData'] : '';
 
             if ($extraData === '') {
-                $values[] = "NULL";
+                //$values[] = "NULL";
             } else {
                 $values[] = "'" . generateRandomData($fieldType, $extraData) . "'";
             }
