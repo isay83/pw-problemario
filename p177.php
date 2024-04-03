@@ -10,12 +10,13 @@ alumno@gmail.@com
 $cases = trim(fgets(STDIN));
 $iterate = 0;
 
-for ($iterate; $iterate<$cases; $iterate++){
+for ($iterate; $iterate < $cases; $iterate++) {
     validate_address();
 }
 
 
-function validate_address(){
+function validate_address()
+{
     $address = trim(fgets(STDIN));
 
     // split email address
@@ -35,25 +36,27 @@ function validate_address(){
     } elseif (!validate_domain($domain)) {
         echo "DOMINIO INCORRECTO\n";
     } else {
-        echo $domain."\n";
+        echo $domain . "\n";
     }
 }
 
-function validate_user($user) {
+function validate_user($user)
+{
     // validate user
-    return !empty($user) && !consecutive_dots($user);
+    return !empty($user) && !strpos($user, ' ') && !consecutive_dots($user);
 }
 
-function validate_domain($domain) {
+
+function validate_domain($domain)
+{
     // validate domain
     $pattern = '/^[a-zA-Z0-9\._-]+$/';
 
-    return preg_match($pattern, $domain);
+    return preg_match($pattern, $domain) && !consecutive_dots($domain);
 }
 
-function consecutive_dots($validate){
+function consecutive_dots($validate)
+{
     // match with consecutive dots
     return (preg_match('/\.\./', $validate));
 }
-
-?>
