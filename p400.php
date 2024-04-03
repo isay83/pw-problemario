@@ -51,9 +51,11 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
         if ($fieldType === 'char') {
             $sql .= '(255)';
         }
-        $sql .= " NOT NULL";
+
         if ($extraData === '') {
             $sql .= " DEFAULT NULL";
+        } else {
+            $sql .= " NOT NULL";
         }
         $sql .= ",\n";
     }
@@ -93,12 +95,13 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
 // Example input
 $tableName = 'Empleados';
 $numRecords = 2;
-$numFields = 4;
+$numFields = 5;
 $fields = [
     ['name' => 'Nombre', 'type' => 'char', 'extraData' => 'nombre'],
     ['name' => 'Telefono', 'type' => 'char', 'extraData' => 'telefono'],
+    ['name' => 'Referencias', 'type' => 'char'],
     ['name' => 'Edad', 'type' => 'int', 'extraData' => '18 34'],
-    ['name' => 'Referencias', 'type' => 'char']
+    ['name' => 'Fecha', 'type' => 'date', 'extraData' => '2020-01-01 2024-12-31']
 ];
 
 // Generate the SQL script
