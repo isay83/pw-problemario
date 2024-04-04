@@ -61,7 +61,7 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
     }
 
     $sql .= "PRIMARY KEY (`id`)\n";
-    $sql .= ") AUTO_INCREMENT=1;\n";
+    $sql .= ") AUTO_INCREMENT = 1;\n";
     $sql .= "INSERT INTO `$tableName` (";
 
     //$fieldNames = array_column($fields, 'name');
@@ -107,10 +107,11 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
 // Example input
 $tableName = 'Empleados';
 $numRecords = 2;
-$numFields = 5;
+$numFields = 6;
 $fields = [
     ['name' => 'Nombre', 'type' => 'char', 'extraData' => 'nombre'],
     ['name' => 'Telefono', 'type' => 'char', 'extraData' => 'telefono'],
+    ['name' => 'Prueba', 'type' => 'date'],
     ['name' => 'Edad', 'type' => 'int', 'extraData' => '18 34'],
     ['name' => 'Fecha', 'type' => 'date', 'extraData' => '2020-01-01 2024-12-31'],
     ['name' => 'Referencias', 'type' => 'char']
