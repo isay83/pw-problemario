@@ -2,6 +2,66 @@
 // Jonathan Isay Bernal Arriaga
 // 2024 Ene-Jun
 
+
+
+// Example input
+/*
+$tableName = 'Empleados';
+$numRecords = 2;
+$numFields = 6;
+*/
+/*$fields = [
+    ['name' => 'Nombre', 'type' => 'char', 'extraData' => 'nombre'],
+    ['name' => 'Telefono', 'type' => 'char', 'extraData' => 'telefono'],
+    ['name' => 'Prueba', 'type' => 'date'],
+    ['name' => 'Edad', 'type' => 'int', 'extraData' => '18 34'],
+    ['name' => 'Fecha', 'type' => 'date', 'extraData' => '2020-01-01 2024-12-31'],
+    ['name' => 'Referencias', 'type' => 'char']
+];*/
+
+$entry = trim(fgets(STDIN));
+
+$table = explode(' ', $entry);
+// Table name
+$tableName = $table[0];
+// Records
+$numRecords = $table[1];
+// Fields
+$numFields = $table[2];
+
+$fields = generateFields($numFields);
+
+function generateFields($numFields)
+{
+    $fields = [];
+    for ($i = 0; $i < $numFields; $i++) {
+        $field = trim(fgets(STDIN));
+        $fieldData = explode(' ', $field);
+
+        // Verificar si hay más de dos elementos en $fieldData
+        if (count($fieldData) > 2) {
+            // Si hay más de dos elementos, combinar los elementos 2 y posteriores en 'extraData'
+            $extraData = implode(' ', array_slice($fieldData, 2));
+        } else {
+            // Si no, establecer 'extraData' como una cadena vacía
+            $extraData = '';
+        }
+
+        $fields[] = [
+            'name' => $fieldData[0],
+            'type' => $fieldData[1],
+            'extraData' => $extraData
+        ];
+    }
+    return $fields;
+}
+
+
+// Generate the SQL script
+$sqlScript = generateSQLScript($tableName, $numRecords, $fields);
+
+echo $sqlScript;
+
 // Function to generate random data based on field type
 function generateRandomData($type, $extraData = '')
 {
@@ -36,7 +96,7 @@ function generateRandomData($type, $extraData = '')
 }
 
 // Function to generate the SQL script
-function generateSQLScript($tableName, $numRecords, $numFields, $fields)
+function generateSQLScript($tableName, $numRecords, $fields)
 {
     $sql = "DROP TABLE IF EXISTS `$tableName`;\n";
     $sql .= "CREATE TABLE `$tableName` (\n";
@@ -75,7 +135,7 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
         }
     }
     $sql .= "`" . implode("`,`", $fieldNames) . "`";
-    print_r($fieldNames);
+    //print_r($fieldNames);
     $sql .= ")\nVALUES\n";
 
     for ($i = 0; $i < $numRecords; $i++) {
@@ -103,21 +163,3 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
 
     return $sql;
 }
-
-// Example input
-$tableName = 'Empleados';
-$numRecords = 2;
-$numFields = 6;
-$fields = [
-    ['name' => 'Nombre', 'type' => 'char', 'extraData' => 'nombre'],
-    ['name' => 'Telefono', 'type' => 'char', 'extraData' => 'telefono'],
-    ['name' => 'Prueba', 'type' => 'date'],
-    ['name' => 'Edad', 'type' => 'int', 'extraData' => '18 34'],
-    ['name' => 'Fecha', 'type' => 'date', 'extraData' => '2020-01-01 2024-12-31'],
-    ['name' => 'Referencias', 'type' => 'char']
-];
-
-// Generate the SQL script
-$sqlScript = generateSQLScript($tableName, $numRecords, $numFields, $fields);
-
-echo $sqlScript;
