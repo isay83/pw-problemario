@@ -64,14 +64,17 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
     $sql .= ") AUTO_INCREMENT=1;\n";
     $sql .= "INSERT INTO `$tableName` (";
 
-    $fieldNames = array_column($fields, 'name');
-    //$sql .= "`" . implode("`,`", $fieldNames) . "`";
-    $sql .= "`" . implode("`,`", array_filter($fieldNames, function ($fieldName) use ($fields) {
-        $field = array_filter($fields, function ($field) use ($fieldName) {
-            return $field['name'] === $fieldName;
-        });
-        return isset($field[2]['extraData']);
-    })) . "`";
+    //$fieldNames = array_column($fields, 'name');
+    $fieldNames = [];
+    // Iterar sobre cada elemento en $fields
+    foreach ($fields as $field) {
+        // Verificar si el campo tiene 'extraData'
+        if (isset($field['extraData'])) {
+            // Si tiene 'extraData', agregar su nombre al arreglo $fieldNames
+            $fieldNames[] = $field['name'];
+        }
+    }
+    $sql .= "`" . implode("`,`", $fieldNames) . "`";
     print_r($fieldNames);
     $sql .= ")\nVALUES\n";
 
@@ -84,6 +87,8 @@ function generateSQLScript($tableName, $numRecords, $numFields, $fields)
 
             if ($extraData === '') {
                 //$values[] = "NULL";
+            } elseif ($fieldType === 'int') {
+                $values[] = generateRandomData($fieldType, $extraData);
             } else {
                 $values[] = "'" . generateRandomData($fieldType, $extraData) . "'";
             }
@@ -106,9 +111,9 @@ $numFields = 5;
 $fields = [
     ['name' => 'Nombre', 'type' => 'char', 'extraData' => 'nombre'],
     ['name' => 'Telefono', 'type' => 'char', 'extraData' => 'telefono'],
-    ['name' => 'Referencias', 'type' => 'char'],
     ['name' => 'Edad', 'type' => 'int', 'extraData' => '18 34'],
-    ['name' => 'Fecha', 'type' => 'date', 'extraData' => '2020-01-01 2024-12-31']
+    ['name' => 'Fecha', 'type' => 'date', 'extraData' => '2020-01-01 2024-12-31'],
+    ['name' => 'Referencias', 'type' => 'char']
 ];
 
 // Generate the SQL script
