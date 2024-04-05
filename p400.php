@@ -39,12 +39,24 @@ function generateFields($numFields)
         $fieldData = explode(' ', $field);
 
         // Verificar si hay más de dos elementos en $fieldData
-        if (count($fieldData) > 2) {
-            // Si hay más de dos elementos, combinar los elementos 2 y posteriores en 'extraData'
-            $extraData = implode(' ', array_slice($fieldData, 2));
+        if ($fieldData[1] !== 'char') {
+            if (count($fieldData) > 2) {
+                // Si hay más de dos elementos, combinar los elementos 2 y posteriores en 'extraData'
+                $extraData = implode(' ', array_slice($fieldData, 2));
+            } else {
+                // Si no, establecer 'extraData' como una cadena vacía
+                $extraData = '';
+            }
         } else {
-            // Si no, establecer 'extraData' como una cadena vacía
-            $extraData = '';
+            if (count($fieldData) > 2) {
+                if ($fieldData[2] == 'telefono') {
+                    $extraData = implode(' ', array_slice($fieldData, 2));
+                } else {
+                    $extraData = $fieldData[2];
+                }
+            } else {
+                $extraData = '';
+            }
         }
 
         $fields[] = [
@@ -76,7 +88,8 @@ function generateRandomData($type, $extraData = '')
             $randomDate = rand($startDate, $endDate);
             return date('Y-m-d', $randomDate);
         case 'char':
-            switch ($extraData) {
+            $charData = explode(' ', $extraData)[0];
+            switch ($charData) {
                 case 'nombre':
                     $nombres = ['Juan', 'Ana', 'Maria', 'Luisa', 'Luis', 'Pedro', 'Angel', 'Carla', 'Alicia', 'Josefina', 'Fernando'];
                     return $nombres[array_rand($nombres)];
@@ -84,9 +97,9 @@ function generateRandomData($type, $extraData = '')
                     $apellidos = ['Lopez', 'Perez', 'Martinez', 'Jimenez', 'Gutierrez', 'Vera', 'Ortega', 'Castillo', 'Mireles', 'Frias', 'Morales', 'Mejia', 'Garcia'];
                     return $apellidos[array_rand($apellidos)];
                 case 'telefono':
-                    $lada = '464';
+                    $areaCode = explode(' ', $extraData)[1];
                     $telefono = rand(100, 999) . ' ' . rand(10, 99) . ' ' . rand(10, 99);
-                    return $lada . ' ' . $telefono;
+                    return $areaCode . ' ' . $telefono;
                 default:
                     return null;
             }
@@ -100,7 +113,7 @@ function generateSQLScript($tableName, $numRecords, $fields)
 {
     $sql = "DROP TABLE IF EXISTS `$tableName`;\n";
     $sql .= "CREATE TABLE `$tableName` (\n";
-    $sql .= "`id` int auto_increment,\n";
+    $sql .= "`id` int AUTO_INCREMENT,\n";
 
     foreach ($fields as $field) {
         $fieldName = $field['name'];
@@ -129,13 +142,13 @@ function generateSQLScript($tableName, $numRecords, $fields)
     // Iterar sobre cada elemento en $fields
     foreach ($fields as $field) {
         // Verificar si el campo tiene 'extraData'
-        if (isset($field['extraData'])) {
+        if ($field['extraData'] !== '') {
             // Si tiene 'extraData', agregar su nombre al arreglo $fieldNames
             $fieldNames[] = $field['name'];
+            echo $field['name'] . "\n";
         }
     }
     $sql .= "`" . implode("`,`", $fieldNames) . "`";
-    //print_r($fieldNames);
     $sql .= ")\nVALUES\n";
 
     for ($i = 0; $i < $numRecords; $i++) {
