@@ -2,8 +2,6 @@
 // Jonathan Isay Bernal Arriaga
 // 2024 Ene-Jun
 
-
-
 // Example input
 /*
 $tableName = 'Empleados';
@@ -19,18 +17,25 @@ $numFields = 6;
     ['name' => 'Referencias', 'type' => 'char']
 ];*/
 
+// Read user input from the command line
 $entry = trim(fgets(STDIN));
-
+// Split the input into an array
 $table = explode(' ', $entry);
-// Table name
+// Get the table name
 $tableName = $table[0];
-// Records
+// Get the number of records
 $numRecords = $table[1];
-// Fields
+// Get the number of fields
 $numFields = $table[2];
-
+// Generate fields based on the number of fields specified
 $fields = generateFields($numFields);
 
+/**
+ * Generates an array of fields based on the number of fields specified.
+ *
+ * @param int $numFields The number of fields to generate.
+ * @return array An array of fields, each containing a name, type, and extraData.
+ */
 function generateFields($numFields)
 {
     $fields = [];
@@ -38,13 +43,13 @@ function generateFields($numFields)
         $field = trim(fgets(STDIN));
         $fieldData = explode(' ', $field);
 
-        // Verificar si hay más de dos elementos en $fieldData
+        // Check if there are more than two elements in $fieldData
         if ($fieldData[1] !== 'char') {
             if (count($fieldData) > 2) {
-                // Si hay más de dos elementos, combinar los elementos 2 y posteriores en 'extraData'
+                // If there are more than two elements, combine elements 2 and onwards into 'extraData'
                 $extraData = implode(' ', array_slice($fieldData, 2));
             } else {
-                // Si no, establecer 'extraData' como una cadena vacía
+                // If not, set 'extraData' as an empty string
                 $extraData = '';
             }
         } else {
@@ -59,6 +64,13 @@ function generateFields($numFields)
             }
         }
 
+        /**
+         * Adds a new field to the $fields array.
+         *
+         * $fieldData[0] The name of the field.
+         * $fieldData[1] The type of the field.
+         * $extraData Additional data for the field.
+         */
         $fields[] = [
             'name' => $fieldData[0],
             'type' => $fieldData[1],
@@ -68,13 +80,18 @@ function generateFields($numFields)
     return $fields;
 }
 
-
 // Generate the SQL script
 $sqlScript = generateSQLScript($tableName, $numRecords, $fields);
-
+// Output the SQL script
 echo $sqlScript;
 
-// Function to generate random data based on field type
+/**
+ * Generates random data based on the field type and extraData.
+ *
+ * @param string $type The field type.
+ * @param string $extraData The extra data associated with the field.
+ * @return mixed The generated random data.
+ */
 function generateRandomData($type, $extraData = '')
 {
     switch ($type) {
@@ -108,7 +125,14 @@ function generateRandomData($type, $extraData = '')
     }
 }
 
-// Function to generate the SQL script
+/**
+ * Generates an SQL script based on the table name, number of records, and fields.
+ *
+ * @param string $tableName The name of the table.
+ * @param int $numRecords The number of records to generate.
+ * @param array $fields An array of fields.
+ * @return string The generated SQL script.
+ */
 function generateSQLScript($tableName, $numRecords, $fields)
 {
     $sql = "DROP TABLE IF EXISTS `$tableName`;\n";
@@ -137,15 +161,10 @@ function generateSQLScript($tableName, $numRecords, $fields)
     $sql .= ") AUTO_INCREMENT = 1;\n";
     $sql .= "INSERT INTO `$tableName` (";
 
-    //$fieldNames = array_column($fields, 'name');
     $fieldNames = [];
-    // Iterar sobre cada elemento en $fields
     foreach ($fields as $field) {
-        // Verificar si el campo tiene 'extraData'
         if ($field['extraData'] !== '') {
-            // Si tiene 'extraData', agregar su nombre al arreglo $fieldNames
             $fieldNames[] = $field['name'];
-            echo $field['name'] . "\n";
         }
     }
     $sql .= "`" . implode("`,`", $fieldNames) . "`";
@@ -177,11 +196,14 @@ function generateSQLScript($tableName, $numRecords, $fields)
     return $sql;
 }
 
+/**
+ * Generates a random number with the specified number of digits.
+ *
+ * @param int $digits The number of digits for the generated number.
+ * @return string The generated random number.
+ */
 function generateNumber($digits)
 {
-    // Generar un número aleatorio con la cantidad de dígitos especificada
     $number = rand(pow(10, $digits - 1), pow(10, $digits) - 1);
-
-    // Formatear el número con ceros a la izquierda si es necesario
     return str_pad($number, $digits, '0', STR_PAD_LEFT);
 }
