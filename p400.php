@@ -98,7 +98,7 @@ function generateRandomData($type, $extraData = '')
                     return $apellidos[array_rand($apellidos)];
                 case 'telefono':
                     $areaCode = explode(' ', $extraData)[1];
-                    $telefono = rand(100, 999) . ' ' . rand(10, 99) . ' ' . rand(10, 99);
+                    $telefono = generateNumber(3) . ' ' . generateNumber(2) . ' ' . generateNumber(2);
                     return $areaCode . ' ' . $telefono;
                 default:
                     return null;
@@ -175,4 +175,13 @@ function generateSQLScript($tableName, $numRecords, $fields)
     $sql .= ";\n";
 
     return $sql;
+}
+
+function generateNumber($digits)
+{
+    // Generar un número aleatorio con la cantidad de dígitos especificada
+    $number = rand(pow(10, $digits - 1), pow(10, $digits) - 1);
+
+    // Formatear el número con ceros a la izquierda si es necesario
+    return str_pad($number, $digits, '0', STR_PAD_LEFT);
 }
