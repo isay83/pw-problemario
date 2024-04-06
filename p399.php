@@ -21,15 +21,13 @@ FROM (
     SELECT c.Id
     FROM citas_citas c
     INNER JOIN citas_gustos g1 ON c.Id_Invita = g1.Id_Usuario
-    INNER JOIN citas_gustos g2 ON c.Id_Acepta = g2.Id_Usuario
+    INNER JOIN citas_gustos g2 ON c.Id_Acepta = g2.Id_Usuario AND g1.Id_Gusto = g2.Id_Gusto
     GROUP BY c.Id
-    HAVING COUNT(DISTINCT CASE WHEN g1.Id_Gusto = g2.Id_Gusto THEN g1.Id_Gusto END) >= COUNT(DISTINCT g1.Id_Gusto) * 0.5
+    HAVING COUNT(DISTINCT g1.Id_Gusto) >= COUNT(DISTINCT g2.Id_Gusto) * 0.5
 ) t;";
 
 $result = mysqli_query($conn, $sql);
-if ($result === false) {
-    echo "Error en la consulta: " . mysqli_error($conn) . "\n";
-} elseif (mysqli_num_rows($result) > 0) {
+if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
     echo $row["numero_citas"] . "\n";
 } else {
@@ -40,15 +38,11 @@ if ($result === false) {
 // 2: Cuantos usuarios no tienen citas registradas.
 $sql = "SELECT COUNT(*) AS usuarios_sin_citas
 FROM citas_usuarios u
-WHERE NOT EXISTS (
-    SELECT 1 FROM citas_citas c
-    WHERE c.Id_Invita = u.Id OR c.Id_Acepta = u.Id
-);";
+LEFT JOIN citas_citas c ON c.Id_Invita = u.Id OR c.Id_Acepta = u.Id
+WHERE c.Id IS NULL;";
 
 $result = mysqli_query($conn, $sql);
-if ($result === false) {
-    echo "Error en la consulta: " . mysqli_error($conn) . "\n";
-} elseif (mysqli_num_rows($result) > 0) {
+if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
     echo $row["usuarios_sin_citas"] . "\n";
 } else {
@@ -66,9 +60,7 @@ GROUP BY t.Nombre
 ORDER BY Tendencia;";
 
 $result = mysqli_query($conn, $sql);
-if ($result === false) {
-    echo "Error en la consulta: " . mysqli_error($conn) . "\n";
-} elseif (mysqli_num_rows($result) > 0) {
+if (mysqli_num_rows($result) > 0) {
     // Storing results in an array
     $rows = array();
     while ($row = mysqli_fetch_assoc($result)) {
@@ -107,9 +99,8 @@ FROM (
 WHERE rn = 1;";
 
 $result = mysqli_query($conn, $sql);
-if ($result === false) {
-    echo "Error en la consulta: " . mysqli_error($conn) . "\n";
-} elseif (mysqli_num_rows($result) > 0) {
+
+if (mysqli_num_rows($result) > 0) {
     // Storing results in an array
     $rows = array();
     while ($row = mysqli_fetch_assoc($result)) {
@@ -129,14 +120,11 @@ $sql = "SELECT COUNT(*) AS citas_registradas_mal
 FROM citas_citas c
 JOIN citas_usuarios u1 ON c.Id_Invita = u1.Id
 JOIN citas_usuarios u2 ON c.Id_Acepta = u2.Id
-JOIN citas_tendencia t1 ON u1.Id_Tendencia = t1.Id
-JOIN citas_tendencia t2 ON u2.Id_Tendencia = t2.Id
-WHERE (t1.Nombre = 'Hetero' AND t2.Nombre = 'LGBTIQ') OR (t1.Nombre = 'LGBTIQ' AND t2.Nombre = 'Hetero');";
+WHERE (u1.Id_Tendencia = 1 AND u2.Id_Tendencia = 3) OR (u1.Id_Tendencia = 3 AND u2.Id_Tendencia = 1);";
 
 $result = mysqli_query($conn, $sql);
-if ($result === false) {
-    echo "Error en la consulta: " . mysqli_error($conn) . "\n";
-} elseif (mysqli_num_rows($result) > 0) {
+
+if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
     echo $row["citas_registradas_mal"] . "\n";
 } else {
@@ -150,9 +138,8 @@ FROM citas_citas
 WHERE Calif1 >= 6 AND Calif2 >= 6;";
 
 $result = mysqli_query($conn, $sql);
-if ($result === false) {
-    echo "Error en la consulta: " . mysqli_error($conn) . "\n";
-} elseif (mysqli_num_rows($result) > 0) {
+
+if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
     echo $row["citas_exitosas"];
 } else {
