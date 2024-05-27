@@ -94,11 +94,12 @@ foreach ($tarjetas as $tarjeta) {
         continue;
     }
 
-    // Dividir el número de tarjeta en cuatro partes
-    $one = substr($tarjeta, 0, 4);
-    $two = substr($tarjeta, 4, 4);
-    $three = substr($tarjeta, 8, 4);
-    $four = substr($tarjeta, 12, 4);
+    // Dividir el número de tarjeta en partes (cada parte puede tener diferente longitud)
+    $parts = str_split($tarjeta, 4);
+    $one = isset($parts[0]) ? $parts[0] : '';
+    $two = isset($parts[1]) ? $parts[1] : '';
+    $three = isset($parts[2]) ? $parts[2] : '';
+    $four = isset($parts[3]) ? $parts[3] : '';
 
     // Enviar datos y obtener la respuesta
     $response = enviarDatos($one, $two, $three, $four);
@@ -106,4 +107,9 @@ foreach ($tarjetas as $tarjeta) {
 
     // Imprimir el resultado
     echo "$banco\n";
+
+    echo $one . "\n";
+    echo $two . "\n";
+    echo $three . "\n";
+    echo $four . "\n";
 }
