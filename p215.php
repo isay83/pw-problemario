@@ -30,7 +30,7 @@ if ($connection) {
 
         // separating names
         echo implode(":", $tables);
-    }else {
+    } else {
         die("Query error" . mysqli_error($cone));
     }
 
@@ -39,5 +39,3 @@ if ($connection) {
 } else {
     die("Connection error: " . mysqli_connect_error());
 }
-
-?>
