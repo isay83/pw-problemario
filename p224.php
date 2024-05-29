@@ -1,4 +1,7 @@
 <?php
+// Jonathan Isay Bernal Arriaga
+// 2024 Ene-Jun
+
 // Función para enviar los datos del formulario y obtener la respuesta
 function enviarDatos($one, $two, $three, $four)
 {
@@ -12,20 +15,21 @@ function enviarDatos($one, $two, $three, $four)
     // Configurar el agente de usuario (opcional)
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 
-    // Establecer la opción para devolver la transferencia como una cadena
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     // Datos del formulario que se van a enviar
     $postData = http_build_query([
         'one' => $one,
         'two' => $two,
-        'three' => $three,
+        'tree' => $three,
         'four' => $four
     ]);
 
     // Configurar cURL para que use el método POST
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+
+    // Establecer la opción para devolver la transferencia como una cadena
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     // Ejecutar la solicitud
     $response = curl_exec($ch);
@@ -107,9 +111,4 @@ foreach ($tarjetas as $tarjeta) {
 
     // Imprimir el resultado
     echo "$banco\n";
-
-    echo $one . "\n";
-    echo $two . "\n";
-    echo $three . "\n";
-    echo $four . "\n";
 }
