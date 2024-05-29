@@ -13,11 +13,11 @@ $connection = mysqli_connect($server, $user, $password, $dataBase);
 if ($connection) {
     // Query to determinate winner
     $query = "SELECT CONCAT(u.Nombre, ' ', u.Apellidos) AS usuario, SUM(j.puntos) AS puntos
-    FROM usuarios u
+    FROM Usuarios u
     JOIN (
-        SELECT id_usuario AS usuario, puntos FROM juegos WHERE ganador = id_usuario
+        SELECT id_usuario AS usuario, puntos FROM BD_Domino_Juegos WHERE ganador = id_usuario
         UNION ALL
-        SELECT id_invitado AS usuario, puntos FROM juegos WHERE ganador = id_invitado
+        SELECT id_invitado AS usuario, puntos FROM BD_Domino_Juegos WHERE ganador = id_invitado
     ) j ON u.Usuario = j.usuario
     GROUP BY 1
     ORDER BY puntos DESC
