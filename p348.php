@@ -37,8 +37,6 @@ function checkResponse($response)
 {
     // Check if the request was successful
     if ($response !== false) {
-        echo "Success\n";
-
         // Patterns to extract the required information
         $patternTotal = '/<span class="fs-2hx fw-bolder text-dark me-2 lh-1">\s*([\d,\.]+)\s*<\/span>/';
         $patternM = '/<div class="d-flex justify-content-between w-100 mt-auto mb-2">\s*<span class="fw-boldest fs-6 text-dark">\s*Men<\/span>\s*<span class="fw-bolder fs-6 text-gray-400">([\d]+)%<\/span>\s*<\/div>/';
