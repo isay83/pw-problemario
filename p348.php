@@ -55,7 +55,7 @@ function checkResponse($response)
         $womenPercentage = getStats($response, $patternH);
         $othersPercentage = getStats($response, $patternO);
         $hours = array_slice(getHours($response, $patternHour), 2);
-        $values = array_slice(getValues($response, $patternValue), 2);
+        $values = array_slice(getHours($response, $patternValue), 2);
 
         // Calculate gender access numbers
         $menAccess = round(($menPercentage / 100) * $totalAccess);
@@ -81,14 +81,6 @@ function getStats($response, $pattern)
 }
 
 function getHours($response, $pattern)
-{
-    if (preg_match_all($pattern, $response, $matches)) {
-        return $matches[1];
-    }
-    return [];
-}
-
-function getValues($response, $pattern)
 {
     if (preg_match_all($pattern, $response, $matches)) {
         return $matches[1];
